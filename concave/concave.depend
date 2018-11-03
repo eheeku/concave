@@ -1,0 +1,25 @@
+# depslib dependency file v1.0
+1541212827 source:d:\gitstg\concave\concave\drawing_board.cpp
+	"5_mok.h"
+
+1541212827 d:\gitstg\concave\concave\5_mok.h
+	<stdio.h>
+	<conio.h>
+	<windows.h>
+	<stdlib.h>
+
+1541212827 source:d:\gitstg\concave\concave\game_finish.cpp
+	"5_mok.h"
+
+1541212827 source:d:\gitstg\concave\concave\initialization.cpp
+	"5_mok.h"
+
+1541212827 source:d:\gitstg\concave\concave\main.cpp
+	"5_mok.h"
+
+1541212827 source:d:\gitstg\concave\concave\moving_cursor.cpp
+	"5_mok.h"
+
+1541212827 source:d:\gitstg\concave\concave\who_win.cpp
+	"5_mok.h"
+
