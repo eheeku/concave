@@ -1,7 +1,7 @@
 #include "5_mok.h"
 
-int Who_win() {	//승리 검정 함수
-	int sum1 = 0;	// 승리판정
+int Who_win() {	//winner is black
+	int sum1 = 0;	// score
 	int sum2 = 0;
 
 	for (int i = -4; i <5; i++) {	// 세로 검사

@@ -13,14 +13,14 @@
 
 #ifndef Ground
 #define Ground
-typedef struct Ground {	// 바둑돌 구조체
+typedef struct Ground {	// rock struct
 	int dot_data;
 	int x;
 	int y;
 	int user;
 }ground;
-extern ground *back_ground;	//전역
-extern int arr[27][27];	//전역
+extern ground *back_ground;	//global
+extern int arr[27][27];	//global
 #endif
 
 
