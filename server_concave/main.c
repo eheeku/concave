@@ -1,6 +1,9 @@
 #include <winsock2.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
+#include <string.h>
+#include <unistd.h>
 
 #define SERVERPORT 9000
 #define BUFSIZE    512
@@ -11,6 +14,9 @@
 int server_board[BOARD_SIZE][BOARD_SIZE]; //서버 보드판 배열
 int client_board[BOARD_SIZE][BOARD_SIZE]; //클라이언트 보드판 배열
 int check_number[BOARD_SIZE*BOARD_SIZE+1]={0}; //중복검사용 배열
+
+SOCKET listen_sock;
+SOCKET client_sock;
 int server_fd, client_fd; //소켓 파일디스크립터
 int turn[4]; //어플리케이션 프로토콜 정의
 
@@ -41,7 +47,7 @@ void err_display(char *msg)
       LocalFree(lpMsgBuf);
 }
 void sockSetting(){
-          int retval;
+    int retval;
 
       // 윈속 초기화
       WSADATA wsa;
@@ -49,7 +55,7 @@ void sockSetting(){
             return 1;
 
       // socket()
-      SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
+      listen_sock = socket(AF_INET, SOCK_STREAM, 0);
       if(listen_sock == INVALID_SOCKET)
             err_quit("socket()");
 
@@ -69,7 +75,6 @@ void sockSetting(){
             err_quit("listen()");
 
       // 데이터 통신에 사용할 변수
-      SOCKET client_sock;
       SOCKADDR_IN clientaddr;
       int addrlen;
       char buf[BUFSIZE+1];
@@ -130,7 +135,8 @@ void clientGameInit(){
 			}
 		}
 	}
-	array_len = write(client_fd, client_board, sizeof(client_board));
+	array_len = send(client_sock,(char *)&client_board,sizeof(int),0);
+	//array_len = write(client_fd, client_board, sizeof(client_board));
 	printf("%d 바이트를 전송하였습니다\n", array_len);
 	err_display("send()");
 	//error_check(array_len, "데이터전송");
@@ -212,9 +218,11 @@ void server_turn()
 			break;
 		}
 	}
+	printf("here\n");
 	game_run();
 
-	array_len=write(client_fd, turn, sizeof(turn));
+	array_len = send(client_sock,(char*)&turn,sizeof(int),0);
+	//array_len=write(client_fd, turn, sizeof(turn));
 	printf("%d 바이트: 서버의 턴 정보를 전송하였습니다\n", array_len);
 	err_display("send()");
 	//error_check(array_len, "데이터전송");
@@ -227,7 +235,8 @@ void client_turn()
 	{
 		int recv_count;
 
-		recv_count=read(client_fd, turn, sizeof(turn));
+        recv_count = recv(client_sock,(char *)&turn,sizeof(turn),0);
+		//recv_count=read(client_fd, turn, sizeof(turn));
 		err_display("recv()");
 		//error_check(recv_count, "데이터수신");
 		if(recv_count==0) break;
@@ -237,7 +246,9 @@ void client_turn()
 	game_run();
 	check_number[turn[0]]=1;
 
-	array_len=write(client_fd, turn, sizeof(turn));
+	//array_len=write(client_fd, turn, sizeof(turn));
+	array_len = send(client_sock,(char *)&turn,sizeof(int),0);
+
 	printf("%d 바이트: 클라이언트의 턴 정보를 전송하였습니다\n", array_len);
 	err_display("send");
 //	error_check(array_len, "데이터전송");
@@ -272,6 +283,7 @@ int main()
     // terning
     for(i=1;i<=BOARD_SIZE*BOARD_SIZE;i++)
 	{
+	    printf("i :%d\n",i);
 		if(i%2==1)
 			client_turn();
 		else
@@ -299,9 +311,10 @@ int main()
 		}
 	}
 
-	closesocket(client_fd);
-	closesocket(server_fd);
+	closesocket(client_sock);
+	closesocket(listen_sock);
 
+    WSACleanup();
 	printf("game over\n");
 
     return 0;
