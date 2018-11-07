@@ -31,28 +31,8 @@ void err_display(char *msg)
       printf("[%s] %s", msg, (char *)lpMsgBuf);
       LocalFree(lpMsgBuf);
 }
-
-int recvn(Socket s, char *buf, int len, int flags)
-{
-      int received;
-      char *ptr = buf;
-      int left = len;
-      while(left > 0)
-      {
-            received = recv(s, ptr, left, flags);
-            if(received == SOCKET_ERROR)
-                  return SOCKET_ERROR;
-            else if(received == 0)
-                  break;
-            left -= received;
-            ptr += received;
-      }
-      return (len - left);
-}
-
-int main(int argc, char *argv[])
-{
-      int retval;
+void sock_setting(){
+          int retval;
 
       // 윈속 초기화
       WSADATA wsa;
@@ -85,8 +65,6 @@ int main(int argc, char *argv[])
       int addrlen;
       char buf[BUFSIZE+1];
 
-      while(1)
-      {
             // accept()
             addrlen = sizeof(clientaddr);
             client_sock = accept(listen_sock, (SOCKADDR *)&clientaddr, &addrlen);
@@ -99,36 +77,16 @@ int main(int argc, char *argv[])
             // 접속한 클라이언트 정보 출력
             printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n",
                    inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
+}
 
-            // 클라이언트와 데이터 통신
-            while(1)
-            {
-                  // 데이터 받기
-                  retval = recvn(client_sock, buf, BUFSIZE, 0);
-                  if(retval == SOCKET_ERROR)
-                  {
-                        err_display("recv()");
-                        break;
-                  }
-                  else if(retval == 0)
-                        break;
-
-                  // 받은 데이터 출력
-                  buf[retval] = '\0';
-                  printf("[TCP/%s:%d] %s\n", inet_ntoa(clientaddr.sin_addr),
-                         ntohs(clientaddr.sin_port), buf);
-            }
-
-            // closesocket()
-            closesocket(client_sock);
-            printf("[TCP 서버] 클라이언트 종료: IP 주소=%s, 포트 번호=%d\n",
-                   inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
-      }
-
-      // closesocket()
-      closesocket(listen_sock);
-
-      // 윈속 종료
-      WSACleanup();
-      return 0;
+int main()
+{
+    //sock setting
+    sock_setting();
+    // server game init
+    // client game inot
+    // game print
+    // terning
+    printf("Hello world!\n");
+    return 0;
 }
