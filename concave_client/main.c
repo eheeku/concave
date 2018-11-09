@@ -168,6 +168,7 @@ void server_turn()
 
 void client_turn(int turn_count)
 {
+
 	int array_len, recv_len=0;;
 
 	printf("%d턴 숫자를 입력해주세요 : ", turn_count);

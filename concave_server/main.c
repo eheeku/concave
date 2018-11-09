@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <winsock2.h>
+#include <Windows.h>
+
 
 #define SERVERPORT 9000
 #define BOARD_SIZE 10
@@ -12,6 +14,12 @@ int check_number[BOARD_SIZE*BOARD_SIZE+1]={0}; // 중복 검사
 SOCKET listen_sock;
 SOCKET client_sock;
 int turn[4];
+
+void Gotoxy(int x, int y) {
+	COORD Pos = { x - 1, y - 1 };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
+	return;
+}
 
 // 소켓 함수 오류 출력 후 종료
 void err_quit(char *msg)
@@ -144,41 +152,44 @@ void clientGameInit(){
 }
 
 void gamePrint(int turn_count){
+    system("cls");
         int i, j;
         unsigned char a = 0xa6;
         unsigned char b[12];
 
         printf("------ server ------\n");
         printf("turn: %d\n", turn_count);
+	printf("┌");	//위쪽
+	for (int j = 0; j <26; j++) {
+		printf("┬");
+	}
+	printf("┐\n");
 
-        for (i = 1; i < 12; i++)
-               b[i] = 0xa0 + i;
-        printf("%c%c", a, b[3]);
+	for (int i = 0; i < 25; i++) {	//가운데
+		printf("├");
+		for (int j = 0; j < 26; j++) {
+			printf("┼");
+		}
+		printf("┤\n");
+	}
+	printf("└");	//마지막 줄
+	for (int j = 0; j < 26; j++) {
+		printf("┴");
+	}
+	printf("┘");
 
-        for (i = 0; i < BOARD_SIZE - 1; i++)
-               printf("%c%c", a, b[8]);
-        printf("%c%c", a, b[4]);
-        printf("\n");
-
-        for (i = 0; i < BOARD_SIZE - 1; i++)
-        {
-               printf("%c%c", a, b[7]);
-               for (j = 0; j < BOARD_SIZE - 1; j++)
-                       printf("%c%c", a, b[11]);
-               printf("%c%c", a, b[9]);
-               printf("\n");
-        }
-
-        printf("%c%c", a, b[6]);
-
-        for (i = 0; i < BOARD_SIZE - 1; i++)
-               printf("%c%c", a, b[10]);
-        printf("%c%c", a, b[5]);
-        printf("\n");
-
+	for (i =0; i <BOARD_SIZE;i++){
+        for(j =0;j<BOARD_SIZE;j++)
+        if(server_board[i][j]==0){
+            //printf("SERVER_BOARD %d,%d :",i,j);
+            Gotoxy(i,j);
+            printf("●");	//흑돌 출력
+            Gotoxy(0,BOARD_SIZE);
+            }
+	}
 }
 
-int concave_check(int board[][BOARD_SIZE])
+int concave_check(int board[BOARD_SIZE][BOARD_SIZE])
 {
     printf("concave_check()함수 호출");
     return 0;
@@ -202,6 +213,7 @@ void server_turn()
 
 	array_len = send(client_sock,(char*)&turn,sizeof(turn),0);
 	//array_len=write(client_fd, turn, sizeof(turn));
+
 	printf("%d 바이트: 서버의 턴 정보를 전송하였습니다\n", array_len);
 	err_display("send()");
 	//error_check(array_len, "데이터전송");
@@ -239,7 +251,7 @@ void board_black(int board[][BOARD_SIZE], int number)
 		for(j=0; j < BOARD_SIZE; j++)
 		{
 			if(board[i][j]==number)
-				board[i][j]=0; //X표 처리
+				board[i][j]=0;
 		}
 	}
 }
@@ -284,7 +296,7 @@ int main()
 		}
 
 		gamePrint(i);
-		for(j=0;j<4;j++) printf("turn[%d]=%d\n", j, turn[j]); //디버깅용
+		//for(j=0;j<4;j++) printf("turn[%d]=%d\n", j, turn[j]); //디버깅용
 		if(turn[3]==1)
 		{
 			printf("클라이언트 승리\n");
