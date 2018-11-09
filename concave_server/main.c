@@ -5,6 +5,13 @@
 #define SERVERPORT 9000
 #define BOARD_SIZE 8
 
+int server_board[BOARD_SIZE][BOARD_SIZE];
+int client_board[BOARD_SIZE][BOARD_SIZE];
+int check_number[BOARD_SIZE*BOARD_SIZE+1]={0}; // 중복 검사
+
+SOCKET listen_sock;
+SOCKET client_sock;
+int turn[4];
 
 // 소켓 함수 오류 출력 후 종료
 void err_quit(char *msg)
