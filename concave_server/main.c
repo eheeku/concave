@@ -40,7 +40,7 @@ void err_display(char *msg)
       LocalFree(lpMsgBuf);
 }
 
-int recvn(Socket s, char *buf, int len, int flags)
+int recvn(SOCKET s, char *buf, int len, int flags)
 {
       int received;
       char *ptr = buf;
@@ -88,7 +88,6 @@ void socket_setting(){
     // 데이터 통신에 사용할 변수
     SOCKADDR_IN clientaddr;
     int addrlen;
-    char buf[BUFSIZE+1];
 
     // accept()
     addrlen = sizeof(clientaddr);
@@ -123,6 +122,7 @@ void serverGameInit(){
 void clientGameInit(){
     int check_number[BOARD_SIZE*BOARD_SIZE] ={0};
     int i,j;
+    int array_len;
     srand(time(NULL)+100);
 
     for (i=0;i<BOARD_SIZE;i++){
@@ -171,7 +171,7 @@ void gamePrint(int turn_count){
 
         printf("%c%c", a, b[6]);
 
-        for (i = 0; i < c - 1; i++)
+        for (i = 0; i < BOARD_SIZE - 1; i++)
                printf("%c%c", a, b[10]);
         printf("%c%c", a, b[5]);
         printf("\n");
@@ -229,10 +229,25 @@ void client_turn()
 	printf("%d 바이트: 클라이언트의 턴 정보를 전송하였습니다\n", array_len);
 	err_display("send");
 }
+
+void board_black(int board[][BOARD_SIZE], int number)
+{
+	int i, j;
+
+	for(i=0; i < BOARD_SIZE; i++)
+	{
+		for(j=0; j < BOARD_SIZE; j++)
+		{
+			if(board[i][j]==number)
+				board[i][j]=0; //X표 처리
+		}
+	}
+}
+
 void game_run()
 {
-	board_X(server_board, turn[0]);
-	board_X(client_board, turn[0]);
+	board_black(server_board, turn[0]);
+	board_black(client_board, turn[0]);
 	turn[1]=concave_check(client_board);
 	turn[2]=concave_check(server_board);
 
@@ -248,7 +263,7 @@ int main()
 {
     int i,j;
     //sock setting
-    sockSetting(SERVERPORT);
+    socket_setting(SERVERPORT);
     printf("success create socket !");
     // server game init
     serverGameInit();
